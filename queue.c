@@ -9,8 +9,8 @@ struct list_head *q_new()
 {
     struct list_head *new_qhead = malloc(sizeof(struct list_head));
     if (new_qhead) {
-        INIT_LIST_HEAD(new_qhead);
-        return new_qhead;
+        INIT_LIST_HEAD(new_qhead);  // 初始化 list_head，使其成為空的鏈表
+        return new_qhead;           // 返回創建並初始化的佇列首
     }
     return NULL;
 }
@@ -21,6 +21,26 @@ void q_free(struct list_head *head) {}
 /* Insert an element at head of queue */
 bool q_insert_head(struct list_head *head, char *s)
 {
+    if (!head)
+        return false;  // 如果 head 是空的，返回 false
+
+    // 分配記憶體給新的元素
+    element_t *new_ele = malloc(sizeof(element_t));
+    if (!new_ele)
+        return false;
+
+    // 初始化 list 項目
+    INIT_LIST_HEAD(&new_ele->list);
+    new_ele->value = strdup(s);
+
+    if (!new_ele->value) {
+        free(new_ele);  // 如果字符串複製失敗，釋放 new_ele 記憶體
+        return false;
+    }
+
+    // 將新元素插入到佇列的首部
+    list_add(&new_ele->list, head);
+
     return true;
 }
 
