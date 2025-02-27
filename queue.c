@@ -97,15 +97,57 @@ bool q_insert_tail(struct list_head *head, char *s)
 
 /* Remove an element from head of queue */
 element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
+// 從一個 head 指向的鏈表中刪除首部元素，並將該元素的 value
+// （假設是字符串）複製到 sp，最多複製 bufsize - 1 字符。
 {
-    return NULL;
+    if (head == NULL || list_empty(head))
+        return NULL;
+
+    // 取得鏈表首部的元素
+    element_t *first_entry = list_first_entry(head, element_t, list);
+
+    // 如果提供了有效的 sp 且 sp 不是 NULL，將元素的 value 複製到 sp
+    if (sp != NULL) {
+        // 使用 strncpy 複製元素的 value 到 sp，確保不會溢出
+        sp = strncpy(sp, first_entry->value, bufsize - 1);
+
+        // 確保 sp 是一個有效的 C 字符串，並添加字符串結束符 '\0'
+        sp[bufsize - 1] = '\0';
+    }
+
+    // 從鏈表中刪除首部的元素
+    list_del(&first_entry->list);  // first_entry->list: first_entry
+                                   // 節點中用來鏈接到其他節點的鏈表指針。
+    return first_entry;
 }
+
 
 /* Remove an element from tail of queue */
 element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
 {
-    return NULL;
+    // 如果 head 為 NULL 或鏈表為空，返回 NULL
+    if (head == NULL || list_empty(head))
+        return NULL;
+
+    // 取得鏈表尾部的元素
+    element_t *last_entry = list_last_entry(head, element_t, list);
+
+    // 如果提供了有效的 sp 且 sp 不是 NULL，將元素的 value 複製到 sp
+    if (sp != NULL) {
+        // 使用 strncpy 複製元素的 value 到 sp，確保不會溢出
+        sp = strncpy(sp, last_entry->value, bufsize - 1);
+
+        // 確保 sp 是一個有效的 C 字符串，並添加字符串結束符 '\0'
+        sp[bufsize - 1] = '\0';
+    }
+
+    // 從鏈表中刪除尾部的元素
+    list_del(&last_entry->list);  // last_entry->list: last_entry
+                                  // 節點中用來鏈接到其他節點的鏈表指針。
+
+    return last_entry;
 }
+
 
 /* Return number of elements in queue */
 int q_size(struct list_head *head)
