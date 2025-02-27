@@ -10,6 +10,7 @@
 
 struct list_head *q_new()
 {
+<<<<<<< HEAD
     // Declare a pointer to the list_head structure and allocate memory
     struct list_head *new_head = malloc(sizeof(struct list_head));
 
@@ -17,11 +18,18 @@ struct list_head *q_new()
     if (new_head) {
         INIT_LIST_HEAD(new_head);  // Initialize the new list head
         return new_head;
+=======
+    struct list_head *new_qhead = malloc(sizeof(struct list_head));
+    if (new_qhead) {
+        INIT_LIST_HEAD(new_qhead); /* 初始化 list_head，使其成為空的鏈表 */
+        return new_qhead;          /* 返回創建並初始化的佇列首 */
+>>>>>>> cd45557 (Implement q_insert_tail and q_free function)
     }
     return NULL;  // If memory allocation fails, return NULL
 }
 
 /* Free all storage used by queue */
+<<<<<<< HEAD
 void q_free(struct list_head *head)
 {
     // Check if the list pointer is NULL or the list is empty
@@ -49,8 +57,35 @@ void q_free(struct list_head *head)
     free(head);
     return;
 }
+=======
+void q_free(struct list_head *l)
+{
+    // 如果佇列不存在或為空，直接釋放佇列本身的記憶體並返回
+    if (!l || list_empty(l)) {
+        free(l);
+        return;
+    }
+>>>>>>> cd45557 (Implement q_insert_tail and q_free function)
 
-/* Insert an element at head of queue */
+    // 使用指標 pos 來遍歷佇列中的每個元素
+    struct list_head *pos = l->next;
+    while (pos != l) {
+        // 透過 list_entry 取得目前元素的指標
+        element_t *entry = list_entry(pos, element_t, list);
+
+        // 移動到下一個節點之前先保存 next，以防止記憶體釋放後失效
+        pos = pos->next;
+
+        // 釋放目前元素的記憶體
+        q_release_element(entry);
+    }
+
+    // 最後釋放佇列本身的記憶體
+    free(l);
+    return;
+}
+
+// Insert an element at head of queue
 bool q_insert_head(struct list_head *head, char *s)
 {
     if (!head)
