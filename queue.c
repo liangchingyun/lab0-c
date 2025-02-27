@@ -121,20 +121,38 @@ bool q_insert_head(struct list_head *head, char *s)
 bool q_insert_tail(struct list_head *head, char *s)
 {
     if (!head)
+<<<<<<< HEAD
         return false;
 
+=======
+        return false;  // 如果 head 是空的，返回 false
+
+    // 分配記憶體給新的元素
+>>>>>>> f301180 (Implement q_insert_tail and q_free function)
     element_t *new_ele = malloc(sizeof(element_t));
     if (!new_ele)
         return false;
 
+<<<<<<< HEAD
+=======
+    // 初始化 list 項目
+>>>>>>> f301180 (Implement q_insert_tail and q_free function)
     INIT_LIST_HEAD(&new_ele->list);
     new_ele->value = strdup(s);
 
     if (!new_ele->value) {
+<<<<<<< HEAD
         free(new_ele);
         return false;
     }
 
+=======
+        free(new_ele);  // 如果字符串複製失敗，釋放 new_ele 記憶體
+        return false;
+    }
+
+    // 將新元素插入到佇列的尾部
+>>>>>>> f301180 (Implement q_insert_tail and q_free function)
     list_add_tail(&new_ele->list, head);
 
     return true;
