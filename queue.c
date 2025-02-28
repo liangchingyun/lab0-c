@@ -122,6 +122,7 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
 }
 
 
+
 /* Remove an element from tail of queue */
 element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
 {
@@ -167,21 +168,79 @@ int q_size(struct list_head *head)
 bool q_delete_mid(struct list_head *head)
 {
     // https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list/
+    if (!head || list_empty(head))
+        return false;
+    struct list_head *fast = head->next;
+    struct list_head *slow = head->next;
+    while (fast != head && fast->next != head) {
+        fast = fast->next->next;
+        slow = slow->next;
+    }
+    element_t *mid = list_entry(slow, element_t, list);
+    list_del(slow);
+    free(mid->value);
+    free(mid);
     return true;
 }
+
 
 /* Delete all nodes that have duplicate string */
 bool q_delete_dup(struct list_head *head)
 {
     // https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/
+    if (!head || list_empty(head)) {
+        return false;
+    }
+
+    struct list_head *node, *safe;
+    bool dup = false;
+
+    list_for_each_safe (node, safe, head) {
+        element_t *first = list_entry(node, element_t, list);
+        const element_t *second = list_entry(safe, element_t, list);
+        if (safe != head && !strcmp(first->value, second->value)) {
+            list_del(node);
+            free(first->value);
+            free(first);
+            dup = true;
+        } else if (dup) {
+            element_t *tmp = list_entry(node, element_t, list);
+            list_del(node);
+            free(tmp->value);
+            free(tmp);
+            dup = false;
+        }
+    }
     return true;
 }
+
 
 /* Swap every two adjacent nodes */
 void q_swap(struct list_head *head)
 {
-    // https://leetcode.com/problems/swap-nodes-in-pairs/
+    if (head == NULL || head->next == head || head->next->next == head)
+        return;
+
+    struct list_head *iterator = head->next;
+    struct list_head *temp;
+
+    while (iterator != head && iterator->next != head) {
+        temp = iterator->next;
+
+        iterator->prev->next = temp;
+        temp->prev = iterator->prev;
+        iterator->next = temp->next;
+        if (temp->next != head) {
+            temp->next->prev = iterator;
+        }
+        temp->next = iterator;
+        iterator->prev = temp;
+
+        iterator = iterator->next->next;
+    }
 }
+
+
 
 /* Reverse elements in queue */
 void q_reverse(struct list_head *head) {}
