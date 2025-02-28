@@ -218,26 +218,7 @@ bool q_delete_dup(struct list_head *head)
 /* Swap every two adjacent nodes */
 void q_swap(struct list_head *head)
 {
-    if (head == NULL || head->next == head || head->next->next == head)
-        return;
-
-    struct list_head *iterator = head->next;
-    struct list_head *temp;
-
-    while (iterator != head && iterator->next != head) {
-        temp = iterator->next;
-
-        iterator->prev->next = temp;
-        temp->prev = iterator->prev;
-        iterator->next = temp->next;
-        if (temp->next != head) {
-            temp->next->prev = iterator;
-        }
-        temp->next = iterator;
-        iterator->prev = temp;
-
-        iterator = iterator->next->next;
-    }
+    q_reverseK(head, 2);
 }
 
 
