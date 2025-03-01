@@ -28,7 +28,11 @@ cppcheck_build_unmatched() {
   echo "$suppression"
 }
 
+<<<<<<< HEAD
 >>>>>>> e2c62cf (Refine Cppcheck suppression generation)
+=======
+>>>>>>> 2025605 (Refine Cppcheck suppression generation)
+>>>>>>> 1f65169 (Refine Cppcheck suppression generation)
 cppcheck_suppressions() {
   # Array of suppression keys (plain elements, without "--suppress=")
   local -a suppr_keys=(
@@ -61,7 +65,11 @@ cppcheck_suppressions() {
 <<<<<<< HEAD
     "constParameterCallback:tools/fmtscan.c"
 =======
+<<<<<<< HEAD
 >>>>>>> e2c62cf (Refine Cppcheck suppression generation)
+=======
+>>>>>>> 2025605 (Refine Cppcheck suppression generation)
+>>>>>>> 1f65169 (Refine Cppcheck suppression generation)
   )
 
   # Array for additional cppcheck options (non-suppressions)
@@ -70,7 +78,11 @@ cppcheck_suppressions() {
     "--inline-suppr harness.c --inline-suppr tools/fmtscan.c"
 =======
     "--inline-suppr harness.c"
+<<<<<<< HEAD
 >>>>>>> e2c62cf (Refine Cppcheck suppression generation)
+=======
+>>>>>>> 2025605 (Refine Cppcheck suppression generation)
+>>>>>>> 1f65169 (Refine Cppcheck suppression generation)
   )
 
   local out=""
@@ -118,7 +130,11 @@ set_colors
 CPPCHECK_OPTS="-I. --enable=all --error-exitcode=1"
 CPPCHECK_OPTS+=" --force $(cppcheck_suppressions) $(cppcheck_build_unmatched)"
 CPPCHECK_OPTS+=" --cppcheck-build-dir=.out ."
+<<<<<<< HEAD
 >>>>>>> e2c62cf (Refine Cppcheck suppression generation)
+=======
+>>>>>>> 2025605 (Refine Cppcheck suppression generation)
+>>>>>>> 1f65169 (Refine Cppcheck suppression generation)
 
 RETURN=0
 
