@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+<<<<<<< HEAD
 # Ensure that the common script exists and is readable, then verify it has no
 # syntax errors and defines the required function.
 common_script="$(dirname "$0")/../../scripts/common.sh"
@@ -17,6 +18,17 @@ cppcheck_build_unmatched() {
   echo "$suppression"
 }
 
+=======
+# Build unmatched suppressions for each *.c file.
+cppcheck_build_unmatched() {
+  local file suppression=""
+  for file in *.c; do
+    suppression+=" --suppress=unmatchedSuppression:$file"
+  done
+  echo "$suppression"
+}
+
+>>>>>>> e2c62cf (Refine Cppcheck suppression generation)
 cppcheck_suppressions() {
   # Array of suppression keys (plain elements, without "--suppress=")
   local -a suppr_keys=(
@@ -46,12 +58,19 @@ cppcheck_suppressions() {
     "staticFunction:linenoise.c"
     "nullPointerOutOfMemory:web.c"
     "staticFunction:web.c"
+<<<<<<< HEAD
     "constParameterCallback:tools/fmtscan.c"
+=======
+>>>>>>> e2c62cf (Refine Cppcheck suppression generation)
   )
 
   # Array for additional cppcheck options (non-suppressions)
   local -a other_flags=(
+<<<<<<< HEAD
     "--inline-suppr harness.c --inline-suppr tools/fmtscan.c"
+=======
+    "--inline-suppr harness.c"
+>>>>>>> e2c62cf (Refine Cppcheck suppression generation)
   )
 
   local out=""
@@ -69,6 +88,7 @@ cppcheck_suppressions() {
   printf "%s" "$out" | sed 's/[[:space:]]*$//'
 }
 
+<<<<<<< HEAD
 # Generation of standard compliance for GCC/Clang
 detect_cc_std() {
   local STDC_VERSION=""
@@ -94,6 +114,11 @@ CPPCHECK_OPTS+=" --force $(cppcheck_suppressions) $(cppcheck_build_unmatched)"
 CPPCHECK_OPTS+=" --cppcheck-build-dir=.out"
 
 set_colors
+=======
+CPPCHECK_OPTS="-I. --enable=all --error-exitcode=1"
+CPPCHECK_OPTS+=" --force $(cppcheck_suppressions) $(cppcheck_build_unmatched)"
+CPPCHECK_OPTS+=" --cppcheck-build-dir=.out ."
+>>>>>>> e2c62cf (Refine Cppcheck suppression generation)
 
 RETURN=0
 
