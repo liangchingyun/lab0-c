@@ -5,7 +5,7 @@
 #include "queue.h"
 
 /* Create an empty queue */
-/*
+
 struct list_head *q_new()
 {
     // Declare a pointer to the list_head structure and allocate memory
@@ -13,21 +13,10 @@ struct list_head *q_new()
 
     // Check if memory allocation was successful
     if (new_head) {
-        INIT_LIST_HEAD(new_head); // Initialize the new list head
+        INIT_LIST_HEAD(new_head);  // Initialize the new list head
         return new_head;
     }
-    return NULL; // If memory allocation fails, return NULL
-}
-*/
-struct list_head *q_new()
-{
-    struct list_head *new_head = malloc(sizeof(struct list_head));
-
-    if (new_head != NULL) {
-        // 未初始化 list_head
-        return new_head;
-    }
-    return NULL;
+    return NULL;  // If memory allocation fails, return NULL
 }
 
 /* Free all storage used by queue */
@@ -59,53 +48,54 @@ void q_free(struct list_head *head)
     return;
 }
 
-// Insert an element at head of queue
+/* Insert an element at head of queue */
 bool q_insert_head(struct list_head *head, char *s)
 {
     if (!head)
         return false;
 
-    // 分配記憶體給新的元素
+    // Allocate memory for a new element
     element_t *new_ele = malloc(sizeof(element_t));
     if (!new_ele)
         return false;
 
-    // 初始化 list 項目
+    // Initialize the list_head of the new element
     INIT_LIST_HEAD(&new_ele->list);
+
+    // Duplicate the string and assign it to the new element's value
     new_ele->value = strdup(s);
 
+    // If string duplication fails, free the allocated memory and return false
     if (!new_ele->value) {
-        free(new_ele);  // 如果字符串複製失敗，釋放 new_ele 記憶體
+        free(new_ele);
         return false;
     }
 
-    // 將新元素插入到佇列的首部
+    // Add the new element to the head of the list
     list_add(&new_ele->list, head);
 
     return true;
 }
 
+
 /* Insert an element at tail of queue */
 bool q_insert_tail(struct list_head *head, char *s)
 {
     if (!head)
-        return false;  // 如果 head 是空的，返回 false
+        return false;
 
-    // 分配記憶體給新的元素
     element_t *new_ele = malloc(sizeof(element_t));
     if (!new_ele)
         return false;
 
-    // 初始化 list 項目
     INIT_LIST_HEAD(&new_ele->list);
     new_ele->value = strdup(s);
 
     if (!new_ele->value) {
-        free(new_ele);  // 如果字符串複製失敗，釋放 new_ele 記憶體
+        free(new_ele);
         return false;
     }
 
-    // 將新元素插入到佇列的尾部
     list_add_tail(&new_ele->list, head);
 
     return true;
@@ -114,27 +104,21 @@ bool q_insert_tail(struct list_head *head, char *s)
 
 /* Remove an element from head of queue */
 element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
-// 從一個 head 指向的鏈表中刪除首部元素，並將該元素的 value
-// （假設是字符串）複製到 sp，最多複製 bufsize - 1 字符。
 {
-    if (head == NULL || list_empty(head))
+    if (!head || list_empty(head))
         return NULL;
 
-    // 取得鏈表首部的元素
     element_t *first_entry = list_first_entry(head, element_t, list);
 
-    // 如果提供了有效的 sp 且 sp 不是 NULL，將元素的 value 複製到 sp
+    // If sp is not NULL, copy the value of the first entry into the buffer sp
     if (sp != NULL) {
-        // 使用 strncpy 複製元素的 value 到 sp，確保不會溢出
-        sp = strncpy(sp, first_entry->value, bufsize - 1);
-
-        // 確保 sp 是一個有效的 C 字符串，並添加字符串結束符 '\0'
-        sp[bufsize - 1] = '\0';
+        strncpy(sp, first_entry->value, bufsize - 1);
+        sp[bufsize - 1] = '\0';  // Ensure the string is null-terminated
     }
 
-    // 從鏈表中刪除首部的元素
-    list_del(&first_entry->list);  // first_entry->list: first_entry
-                                   // 節點中用來鏈接到其他節點的鏈表指針。
+    // Remove the first entry from the list
+    list_del(&first_entry->list);
+
     return first_entry;
 }
 
@@ -143,25 +127,17 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
 /* Remove an element from tail of queue */
 element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
 {
-    // 如果 head 為 NULL 或鏈表為空，返回 NULL
-    if (head == NULL || list_empty(head))
+    if (!head || list_empty(head))
         return NULL;
 
-    // 取得鏈表尾部的元素
     element_t *last_entry = list_last_entry(head, element_t, list);
 
-    // 如果提供了有效的 sp 且 sp 不是 NULL，將元素的 value 複製到 sp
     if (sp != NULL) {
-        // 使用 strncpy 複製元素的 value 到 sp，確保不會溢出
-        sp = strncpy(sp, last_entry->value, bufsize - 1);
-
-        // 確保 sp 是一個有效的 C 字符串，並添加字符串結束符 '\0'
+        strncpy(sp, last_entry->value, bufsize - 1);
         sp[bufsize - 1] = '\0';
     }
 
-    // 從鏈表中刪除尾部的元素
-    list_del(&last_entry->list);  // last_entry->list: last_entry
-                                  // 節點中用來鏈接到其他節點的鏈表指針。
+    list_del(&last_entry->list);
 
     return last_entry;
 }
@@ -183,19 +159,25 @@ int q_size(struct list_head *head)
 }
 
 /* Delete the middle node in queue */
+
 bool q_delete_mid(struct list_head *head)
 {
     // https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list/
     if (!head || list_empty(head))
         return false;
-    struct list_head *fast = head->next;
-    struct list_head *slow = head->next;
-    while (fast != head && fast->next != head) {
-        fast = fast->next->next;
-        slow = slow->next;
+
+    struct list_head *ptr_1 = head->next;
+    struct list_head *ptr_2 = head->next;
+
+    // Traverse the list until fast and its next pointer reach head
+    while (ptr_1 != head && ptr_1->next != head) {
+        ptr_1 = ptr_1->next->next;
+        ptr_2 = ptr_2->next;
     }
-    element_t *mid = list_entry(slow, element_t, list);
-    list_del(slow);
+
+    element_t *mid = list_entry(ptr_2, element_t, list);
+
+    list_del(ptr_2);
     free(mid->value);
     free(mid);
     return true;
