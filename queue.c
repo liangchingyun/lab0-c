@@ -60,28 +60,30 @@ void q_free(struct list_head *head)
 =======
 void q_free(struct list_head *l)
 {
-    // 如果佇列不存在或為空，直接釋放佇列本身的記憶體並返回
-    if (!l || list_empty(l)) {
-        free(l);
+    // Check if the list pointer is NULL or the list is empty
+    if (!head || list_empty(head)) {
+        free(head);
         return;
     }
 >>>>>>> cd45557 (Implement q_insert_tail and q_free function)
 
-    // 使用指標 pos 來遍歷佇列中的每個元素
-    struct list_head *pos = l->next;
-    while (pos != l) {
-        // 透過 list_entry 取得目前元素的指標
+    // Initialize 'pos' to the first element in the list
+    struct list_head *pos = head->next;
+
+    // Traverse the list and free each element
+    while (pos != head) {
+        // Get the structure that contains this list node
         element_t *entry = list_entry(pos, element_t, list);
 
-        // 移動到下一個節點之前先保存 next，以防止記憶體釋放後失效
+        // Move to the next element before freeing the current one
         pos = pos->next;
 
-        // 釋放目前元素的記憶體
+        // Free the memory for the current element
         q_release_element(entry);
     }
 
-    // 最後釋放佇列本身的記憶體
-    free(l);
+    // Free the list head itself after all elements are released
+    free(head);
     return;
 }
 
