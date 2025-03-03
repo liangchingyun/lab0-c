@@ -5,40 +5,57 @@
 #include "queue.h"
 
 /* Create an empty queue */
+/*
 struct list_head *q_new()
 {
-    struct list_head *new_qhead = malloc(sizeof(struct list_head));
-    if (new_qhead) {
-        INIT_LIST_HEAD(new_qhead); /* 初始化 list_head，使其成為空的鏈表 */
-        return new_qhead;          /* 返回創建並初始化的佇列首 */
+    // Declare a pointer to the list_head structure and allocate memory
+    struct list_head *new_head = malloc(sizeof(struct list_head));
+
+    // Check if memory allocation was successful
+    if (new_head) {
+        INIT_LIST_HEAD(new_head); // Initialize the new list head
+        return new_head;
+    }
+    return NULL; // If memory allocation fails, return NULL
+}
+*/
+struct list_head *q_new()
+{
+    struct list_head *new_head = malloc(sizeof(struct list_head));
+
+    if (new_head != NULL) {
+        // 未初始化 list_head
+        return new_head;
     }
     return NULL;
 }
 
 /* Free all storage used by queue */
-void q_free(struct list_head *l)
+void q_free(struct list_head *head)
 {
-    // 如果佇列不存在或為空，直接釋放佇列本身的記憶體並返回
-    if (!l || list_empty(l)) {
-        free(l);
+    // Check if the list pointer is NULL or the list is empty
+    if (!head || list_empty(head)) {
+        free(head);
         return;
     }
 
-    // 使用指標 pos 來遍歷佇列中的每個元素
-    struct list_head *pos = l->next;
-    while (pos != l) {
-        // 透過 list_entry 取得目前元素的指標
+    // Initialize 'pos' to the first element in the list
+    struct list_head *pos = head->next;
+
+    // Traverse the list and free each element
+    while (pos != head) {
+        // Get the structure that contains this list node
         element_t *entry = list_entry(pos, element_t, list);
 
-        // 移動到下一個節點之前先保存 next，以防止記憶體釋放後失效
+        // Move to the next element before freeing the current one
         pos = pos->next;
 
-        // 釋放目前元素的記憶體
+        // Free the memory for the current element
         q_release_element(entry);
     }
 
-    // 最後釋放佇列本身的記憶體
-    free(l);
+    // Free the list head itself after all elements are released
+    free(head);
     return;
 }
 
@@ -46,7 +63,7 @@ void q_free(struct list_head *l)
 bool q_insert_head(struct list_head *head, char *s)
 {
     if (!head)
-        return false;  // 如果 head 是空的，返回 false
+        return false;
 
     // 分配記憶體給新的元素
     element_t *new_ele = malloc(sizeof(element_t));
@@ -153,13 +170,14 @@ element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
 /* Return number of elements in queue */
 int q_size(struct list_head *head)
 {
+    // If the list doesn't exist, size is 0
     if (!head)
         return 0;
 
     int len = 0;
-    struct list_head *li;
+    struct list_head *pos;
 
-    list_for_each (li, head)
+    list_for_each (pos, head)
         len++;
     return len;
 }
@@ -418,6 +436,27 @@ int q_descend(struct list_head *head)
  * order */
 int q_merge(struct list_head *head, bool descend)
 {
-    // https://leetcode.com/problems/merge-k-sorted-lists/
-    return 0;
+    if (!head || list_empty(head)) {
+        return 0;
+    }
+
+    queue_contex_t *base_queue = list_first_entry(head, queue_contex_t, chain);
+    if (list_is_singular(head)) {
+        return base_queue->size;
+    }
+
+    queue_contex_t *queue_to_merge;
+    struct list_head *current, *next;
+
+    list_for_each_safe (current, next, head) {
+        if (current == &base_queue->chain) {
+            continue;
+        }
+        queue_to_merge = list_entry(current, queue_contex_t, chain);
+        list_splice_tail_init(queue_to_merge->q, base_queue->q);
+        base_queue->size += queue_to_merge->size;
+    }
+
+    q_sort(base_queue->q, descend);
+    return base_queue->size;
 }
