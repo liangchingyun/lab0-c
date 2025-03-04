@@ -185,35 +185,49 @@ bool q_delete_mid(struct list_head *head)
 
 
 /* Delete all nodes that have duplicate string */
+
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     public int val;
+ *     public ListNode next;
+ *     public ListNode(int val=0, ListNode next=null) {
+ *         this.val = val;
+ *         this.next = next;
+ *     }
+ * }
+ */
 bool q_delete_dup(struct list_head *head)
 {
     // https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/
-    if (!head || list_empty(head)) {
+    if (!head || list_empty(head))
         return false;
-    }
 
-    struct list_head *node, *safe;
-    bool dup = false;
+    struct list_head *cur = head->next;
+    while (cur != head && cur->next != head) {
+        struct list_head *next = cur->next;
+        element_t *elem_cur = list_entry(cur, element_t, list);
+        element_t *elem_next = list_entry(next, element_t, list);
 
-    list_for_each_safe (node, safe, head) {
-        element_t *first = list_entry(node, element_t, list);
-        const element_t *second = list_entry(safe, element_t, list);
-        if (safe != head && !strcmp(first->value, second->value)) {
-            list_del(node);
-            free(first->value);
-            free(first);
-            dup = true;
-        } else if (dup) {
-            element_t *tmp = list_entry(node, element_t, list);
-            list_del(node);
-            free(tmp->value);
-            free(tmp);
-            dup = false;
+        if (strcmp(elem_cur->value, elem_next->value) == 0) {
+            while (next != head &&
+                   strcmp(elem_cur->value, elem_next->value) == 0) {
+                list_del(next);
+                free(elem_next->value);
+                free(elem_next);
+                next = cur->next;
+                elem_next = list_entry(next, element_t, list);
+            }
+            list_del(cur);
+            free(elem_cur->value);
+            free(elem_cur);
+            cur = next;
+        } else {
+            cur = cur->next;
         }
     }
     return true;
 }
-
 
 /* Swap every two adjacent nodes */
 void q_swap(struct list_head *head)
@@ -239,6 +253,7 @@ void q_reverse(struct list_head *head)
 }
 
 /* Reverse the nodes of the list k at a time */
+
 void q_reverseK(struct list_head *head, int k)
 {
     // https://leetcode.com/problems/reverse-nodes-in-k-group/
@@ -260,11 +275,16 @@ void q_reverseK(struct list_head *head, int k)
             }
             j++;
         }
-        list_cut_position(&tmp, head, tail->prev);
-        q_reverse(&tmp);
-        list_splice_tail_init(&tmp, &new_head);
+        list_cut_position(&tmp, head,
+                          tail->prev);  // Cuts the k nodes from the list and
+                                        // stores them in the tmp list.
+        q_reverse(&tmp);                // Reverses the k nodes.
+        list_splice_tail_init(
+            &tmp, &new_head);  // Appends the reversed nodes to the new_head.
     }
-    list_splice_init(&new_head, head);
+    list_splice_init(
+        &new_head,
+        head);  // Attach the reversed list back to the original list:
 }
 
 /* Start of sort */
