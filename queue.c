@@ -396,23 +396,24 @@ void q_sort(struct list_head *head, bool descend)
 
 /* Remove every node which has a node with a strictly less value anywhere to
  * the right side of it */
+
 int q_ascend(struct list_head *head)
 {
     // https://leetcode.com/problems/remove-nodes-from-linked-list/
     if (!head || list_empty(head))
         return 0;
 
-    element_t *right = list_entry(head->prev, element_t, list);
-    element_t *left = list_entry(head->prev->prev, element_t, list);
-    while (&left->list != head) {
+    struct list_head *pos = head->prev;
+    while (pos != head && pos->prev != head) {
+        const element_t *right = list_entry(pos, element_t, list);
+        element_t *left = list_entry(pos->prev, element_t, list);
+
         if (strcmp(right->value, left->value) > 0) {
-            left = list_entry(left->list.prev, element_t, list);
-            right = list_entry(right->list.prev, element_t, list);
+            pos = pos->prev;
         } else {
             list_del(&left->list);
             free(left->value);
             free(left);
-            left = list_entry(right->list.prev, element_t, list);
         }
     }
     return q_size(head);
@@ -426,17 +427,17 @@ int q_descend(struct list_head *head)
     if (!head || list_empty(head))
         return 0;
 
-    element_t *right = list_entry(head->prev, element_t, list);
-    element_t *left = list_entry(head->prev->prev, element_t, list);
-    while (&left->list != head) {
+    struct list_head *pos = head->prev;
+    while (pos != head && pos->prev != head) {
+        const element_t *right = list_entry(pos, element_t, list);
+        element_t *left = list_entry(pos->prev, element_t, list);
+
         if (strcmp(right->value, left->value) < 0) {
-            left = list_entry(left->list.prev, element_t, list);
-            right = list_entry(right->list.prev, element_t, list);
+            pos = pos->prev;
         } else {
             list_del(&left->list);
             free(left->value);
             free(left);
-            left = list_entry(right->list.prev, element_t, list);
         }
     }
     return q_size(head);
