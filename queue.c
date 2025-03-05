@@ -445,25 +445,27 @@ int q_descend(struct list_head *head)
 
 /* Merge all the queues into one sorted queue, which is in ascending/descending
  * order */
+
 int q_merge(struct list_head *head, bool descend)
 {
-    if (!head || list_empty(head)) {
+    if (!head || list_empty(head))
         return 0;
-    }
 
     queue_contex_t *base_queue = list_first_entry(head, queue_contex_t, chain);
-    if (list_is_singular(head)) {
+    if (list_is_singular(head))  // If the list contains only one element
         return base_queue->size;
-    }
 
-    queue_contex_t *queue_to_merge;
-    struct list_head *current, *next;
+    struct list_head *pos, *next;
 
-    list_for_each_safe (current, next, head) {
-        if (current == &base_queue->chain) {
+    list_for_each_safe (pos, next, head) {
+        // Skip the base queue itself
+        if (pos == &base_queue->chain)
             continue;
-        }
-        queue_to_merge = list_entry(current, queue_contex_t, chain);
+
+        // Get the current queue context to merge
+        queue_contex_t *queue_to_merge = list_entry(pos, queue_contex_t, chain);
+
+        // Splice the current queue into the base queue and update its size
         list_splice_tail_init(queue_to_merge->q, base_queue->q);
         base_queue->size += queue_to_merge->size;
     }
