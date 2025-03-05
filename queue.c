@@ -295,103 +295,65 @@ void q_reverseK(struct list_head *head, int k)
         head);  // Attach the reversed list back to the original list:
 }
 
-/* Start of sort */
-typedef int (*compare_func_t)(struct list_head *, struct list_head *);
-
-static int cmp_func(struct list_head *a, struct list_head *b)
+void mergeTwoLists(struct list_head *L1, struct list_head *L2, bool descend)
 {
-    const element_t *element_a = list_entry(a, element_t, list);
-    const element_t *element_b = list_entry(b, element_t, list);
-    return strcmp(element_a->value, element_b->value);
-}
-
-static struct list_head *merge_list(struct list_head *first,
-                                    struct list_head *second,
-                                    compare_func_t cmp)
-{
-    struct list_head dummy;
-    struct list_head *tail = &dummy;
-    dummy.next = NULL;
-
-    while (first && second) {
-        if (cmp(first, second) <= 0) {
-            tail->next = first;
-            first->prev = tail;
-            first = first->next;
-        } else {
-            tail->next = second;
-            second->prev = tail;
-            second = second->next;
-        }
-        tail = tail->next;
-    }
-
-    tail->next = (first ? first : second);
-    if (tail->next) {
-        tail->next->prev = tail;
-    }
-    return dummy.next;
-}
-
-static struct list_head *merge_two_list(struct list_head *head,
-                                        compare_func_t cmp)
-{
-    if (!head || !head->next) {
-        return head;
-    }
-
-    struct list_head *slow = head;
-    struct list_head *fast = head->next;
-
-    while (fast && fast->next) {
-        slow = slow->next;
-        fast = fast->next->next;
-    }
-    struct list_head *second = slow->next;
-    slow->next = NULL;
-    if (second) {
-        second->prev = NULL;
-    }
-
-    head = merge_two_list(head, cmp);
-    second = merge_two_list(second, cmp);
-
-    return merge_list(head, second, cmp);
-}
-
-void merge_sort(struct list_head *head, compare_func_t cmp)
-{
-    if (!head || list_empty(head) || head->next->next == head) {
+    if (!L1 || !L2)
         return;
+
+    // Create a new list to store the merged result
+    struct list_head head;
+    INIT_LIST_HEAD(&head);
+
+    // While both L1 and L2 are not empty, compare and merge their elements
+    while (!list_empty(L1) && !list_empty(L2)) {
+        const element_t *e1 = list_first_entry(L1, element_t, list);
+        const element_t *e2 = list_first_entry(L2, element_t, list);
+
+        // Compare the first elements from both lists based on the 'descend'
+        // flag
+        bool condition = (descend ^ (strcmp(e1->value, e2->value) < 0));
+
+        // Choose the node (from either L1 or L2) based on comparison and
+        // sorting order
+        struct list_head *node = condition ? L1->next : L2->next;
+
+        // Move the selected node to the merged list (tail)
+        list_move_tail(node, &head);
     }
 
-    struct list_head *first = head->next;
-    first->prev->next = NULL;
-    head->prev->next = NULL;
+    // After one list is empty, splice the remaining elements from the non-empty
+    // list into 'head'
+    list_splice_tail_init(list_empty(L1) ? L2 : L1, &head);
 
-    first = merge_two_list(first, cmp);
-
-    struct list_head *tail = first;
-    while (tail->next) {
-        tail = tail->next;
-    }
-    head->next = first;
-    first->prev = head;
-    tail->next = head;
-    head->prev = tail;
+    // Finally, merge the results back into L1
+    list_splice(&head, L1);
 }
 
 /* Sort elements of queue in ascending/descending order */
 void q_sort(struct list_head *head, bool descend)
 {
-    merge_sort(head, cmp_func);
+    if (!head || list_empty(head) || list_is_singular(head))
+        return;
 
-    if (descend) {
-        q_reverse(head);
+    // Find the middle of the list
+    struct list_head *slow = head;
+    struct list_head *fast = head->next;
+
+    while (fast != head && fast->next != head) {
+        slow = slow->next;
+        fast = fast->next->next;
     }
+
+    // Split the list into two parts: left and right
+    struct list_head left;
+    list_cut_position(&left, head, slow);
+
+    q_sort(&left, descend);
+    q_sort(head, descend);
+
+    mergeTwoLists(head, &left, descend);
 }
 
-/* End of sort */
 
 
 /* Remove every node which has a node with a strictly less value anywhere to
