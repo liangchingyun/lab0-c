@@ -112,8 +112,13 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
 
     // If sp is not NULL, copy the value of the first entry into the buffer sp
     if (sp != NULL) {
-        strncpy(sp, first_entry->value, bufsize - 1);
-        sp[bufsize - 1] = '\0';  // Ensure the string is null-terminated
+        if (first_entry->value != NULL) {
+            strncpy(sp, first_entry->value, bufsize - 1);
+            sp[bufsize - 1] =
+                '\0';  // Ensure null-termination in case of truncation
+        } else {
+            sp[0] = '\0';  // If value is NULL, ensure buffer is empty
+        }
     }
 
     // Remove the first entry from the list
@@ -121,7 +126,6 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
 
     return first_entry;
 }
-
 
 
 /* Remove an element from tail of queue */
@@ -133,8 +137,12 @@ element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
     element_t *last_entry = list_last_entry(head, element_t, list);
 
     if (sp != NULL) {
-        strncpy(sp, last_entry->value, bufsize - 1);
-        sp[bufsize - 1] = '\0';
+        if (last_entry->value != NULL) {
+            strncpy(sp, last_entry->value, bufsize - 1);
+            sp[bufsize - 1] = '\0';
+        } else {
+            sp[0] = '\0';
+        }
     }
 
     list_del(&last_entry->list);
