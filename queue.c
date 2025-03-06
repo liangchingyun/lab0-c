@@ -443,3 +443,26 @@ int q_merge(struct list_head *head, bool descend)
     q_sort(base_queue->q, descend);
     return base_queue->size;
 }
+
+static inline void swap(struct list_head *a, struct list_head *b)
+{
+    if (a->prev != b) {
+        list_move(b, a->prev);
+    }
+    list_move(a, b->prev);
+}
+
+void q_shuffle(struct list_head *head)
+{
+    if (!head || list_is_singular(head))
+        return;
+
+    for (int len = q_size(head); len > 1; len--) {
+        struct list_head *pos = head->prev;
+        struct list_head *pick = head->prev;
+        for (int r = rand() % len; r > 0; r--)
+            pick = pick->prev;
+        if (pick != pos)
+            swap(pos, pick);
+    }
+}
