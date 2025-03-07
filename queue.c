@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "list_sort.h"
 #include "queue.h"
 
 /* Create an empty queue */
@@ -452,6 +453,8 @@ static inline void swap(struct list_head *a, struct list_head *b)
     list_move(a, b->prev);
 }
 
+/* Shuffle the elements in the queue */
+/*
 void q_shuffle(struct list_head *head)
 {
     if (!head || list_is_singular(head))
@@ -466,3 +469,33 @@ void q_shuffle(struct list_head *head)
             swap(pos, pick);
     }
 }
+*/
+
+/* Sort elements of queue in ascending/descending order using list_sort*/
+/*
+static int q_cmp(void *priv,
+                 const struct list_head *a,
+                 const struct list_head *b)
+{
+    element_t *elem_a = list_entry(a, element_t, list);
+    element_t *elem_b = list_entry(b, element_t, list);
+
+    return strcmp(elem_a->value, elem_b->value);
+}
+
+static int q_cmp_descend(void *priv,
+                         const struct list_head *a,
+                         const struct list_head *b)
+{
+    return strcmp(list_entry(b, element_t, list)->value,
+                  list_entry(a, element_t, list)->value);
+}
+
+void q_ksort(struct list_head *head, bool descend)
+{
+    if (!head || list_empty(head) || list_is_singular(head))
+        return;
+
+    list_sort(NULL, head, descend ? q_cmp_descend : q_cmp);
+}
+*/
