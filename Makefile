@@ -56,6 +56,9 @@ qtest: $(OBJS)
 check: qtest
 	./$< -v 3 -f traces/trace-eg.cmd
 
+check-massif: qtest
+	valgrind --tool=massif ./$< -v 3 -f traces/trace-massif.cmd
+
 test: qtest scripts/driver.py
 	$(Q)scripts/check-repo.sh
 	scripts/driver.py -c
